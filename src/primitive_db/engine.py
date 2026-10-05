@@ -48,7 +48,8 @@ def run():
 
         match command:
             case "create_table":
-                current_metadata = core.create_table(current_metadata, args[1], args[1:])
+                current_metadata = core.create_table(current_metadata, 
+                                                     args[1], args[2:])
             case "list_tables":
                 core.list_tables(current_metadata)
             case "drop_table":
