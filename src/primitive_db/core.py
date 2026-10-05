@@ -88,6 +88,7 @@ def drop_table(metadata: dict, table_name: str) -> dict:
         metadata.pop(table_name)
     else:
         print(f'Ошибка: Таблица {table_name} не существует.')
+    return metadata
 
 def list_tables(metadata: dict) -> None:
     """
