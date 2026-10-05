@@ -7,31 +7,23 @@ def id_add(columns: list) -> list:
     Если есть, но не в начале, то удаляет с текущей позиции и добавляет в начало
     Если нет, то добавляет в начало
     """
-    if columns[0]['name'] == 'ID':
-        return columns
+    id_index = None
     
-    id_index = 1000
     for i, column in enumerate(columns):
-        if column['name'] in ('ID', 'id', 'Id'):
+        if column.split(':')[0].lower() == 'id':
             id_index = i
             break
-    if id_index == 1000:
-        return columns.insert(0, 
-                                {
-                                'name': 'ID',
-                                'type': 'int'
-                                }
-                              )
+
+    if id_index is None:
+        columns.insert(0, 'ID:int')
+    
     elif id_index == 0:
-        return columns[id_index]['name'].upper()
+        columns[0] = 'ID:int'
     else:
-        columns = columns.pop(id_index)
-        return columns.insert(0, 
-                                {
-                                'name': 'ID',
-                                'type': 'int'
-                                }
-                            )
+        columns.pop(id_index)
+        columns.insert(0, 'ID:int')
+
+    return columns
 
 
 def name_check(metadata: dict, table_name: str) -> bool:
@@ -48,7 +40,7 @@ def types_check(columns: list) -> bool:
     False, если типы данных корректны
     """
     for column in columns:
-        if column['type'] in ('int', 'str', 'bool'):
+        if column.split(':')[-1] in ('int', 'str', 'bool'):
             continue
         else:
             return True
@@ -67,13 +59,15 @@ def create_table(metadata: dict, table_name: str, columns: list) -> dict:
 
     if name_check(metadata, table_name):
         print(f'Ошибка: Таблица {table_name} уже существует')
+        return metadata
     
     if types_check(columns):
         print('Ошибка: неподдерживаемый тип данных')
+        return metadata
 
     metadata[table_name] = columns
 
-    cols_str = ', '.join(f"{col['name']}: {col['type']}" for col in columns)
+    cols_str = ', '.join(columns)
     print(f"Таблица {table_name} успешно создана со столбцами: {cols_str}")
     return metadata
     
@@ -94,5 +88,7 @@ def list_tables(metadata: dict) -> None:
     """
     Выводит все таблицы в базе данных
     """
+    if not metadata:
+        print('Ошибка: В базе данных пока нет таблиц')
     for tablename in metadata:
         print(f'- {tablename}\n')
