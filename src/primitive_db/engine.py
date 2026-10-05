@@ -48,13 +48,13 @@ def run():
 
         match command:
             case "create_table":
-                metadata = core.create_table(current_metadata, args[1], args[1:])
+                current_metadata = core.create_table(current_metadata, args[1], args[1:])
             case "list_tables":
                 core.list_tables(current_metadata)
             case "drop_table":
-                metadata = core.drop_table(current_metadata, args[1])
+                current_metadata = core.drop_table(current_metadata, args[1])
             case "help":
                 print_help()
             case "exit":
                 sys.exit(0) 
-        utils.save_metadata('db_meta.json', metadata)    
+        utils.save_metadata('db_meta.json', current_metadata)    
