@@ -38,5 +38,5 @@ def save_table_data(table_name: str, data: dict) -> None:
     """
     Сохраняет таблицу в файл
     """
-    with open('data/' + table_name, 'w', encoding='utf-8') as file:
+    with open(f'data/{table_name}.json', 'w', encoding='utf-8') as file:
         json.dump(data, file)
