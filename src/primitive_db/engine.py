@@ -36,9 +36,9 @@ def print_help():
 
 
 def run():
+    print_help()
     while True:
         current_metadata = utils.load_metadata('db_meta.json')
-        print_help()
 
         user_input = prompt.string('Введите команду: ')
 
