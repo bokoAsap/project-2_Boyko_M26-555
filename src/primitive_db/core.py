@@ -1,6 +1,8 @@
 # основная логика работы с таблицами
 from prettytable import PrettyTable
 
+from . import utils
+
 
 def id_add(columns: list) -> list:
     """
@@ -54,24 +56,18 @@ def validation(columns: dict, values: list) -> list:
     """
     Вытаскивает тип данных столбцов и проверяет соответствуют ли передаваемые значения ему
     """
+    punctuation = '",()'
     keys = list(columns.keys())
     for i in range(len(values)):
-        # if not value_type_check(values[i], columns[keys[i+1]]):
-        #     print(f'Значение {values[i]} не соответсвует типу {columns[keys[i+1]]}')
-        #     return False
+        for p in punctuation:
+            if p in values[i]:
+                values[i] = values[i].replace(p, '')
         if columns[keys[i+1]] == 'int':
             values[i] = int(values[i])
         elif columns[keys[i+1]] == 'bool':
-            values[i] = bool(values[i])
+            values[i] = values[i].lower() in ('true')
         
     return values
-
-
-# def value_type_check(value: object, type: str) -> bool:
-#     """
-#     Проверяет соотвествует ли значение типу данных
-#     """
-#     return isinstance(value, type)
 
 
 def make_table(table_data: list) -> PrettyTable:
@@ -88,9 +84,7 @@ def parse_clause(clause: dict) -> tuple:
     """
     Распаршивает условие
     """
-    column = clause.keys()[0]
-    cond = clause.values()[0]
-    return column, cond
+    return tuple(clause.items())[0]
 
     
 def create_table(metadata: dict, table_name: str, columns: list) -> dict:
@@ -111,9 +105,8 @@ def create_table(metadata: dict, table_name: str, columns: list) -> dict:
         print('Ошибка: неподдерживаемый тип данных')
         return metadata
 
-    metadata = {
-        'columns': dict(column.split(':', 1) for column in columns),
-        'data': []
+    metadata[table_name] = {
+        'columns': dict(column.split(':', 1) for column in columns)
     }
 
     cols_str = ', '.join(columns)
@@ -144,7 +137,7 @@ def list_tables(metadata: dict) -> None:
         print(f'- {tablename}\n')
 
 
-def insert(metadata: dict, table_name: str, values: list) -> dict:
+def insert(metadata: dict, table_name: str, values: list) -> list:
     """
     Проверяет, существует ли таблица
     Проверяет, что количество переданных значений соответствует количеству столбцов (минус ID)
@@ -154,22 +147,25 @@ def insert(metadata: dict, table_name: str, values: list) -> dict:
     """
     if not name_check(metadata, table_name):
         print(f'Ошибка: Таблица {table_name} не существует')
-        return metadata
+        return []
     
-    if len(values) != len(metadata['columns']) - 1:
+    if len(values) != len(metadata[table_name]['columns']) - 1:
         print(f'Ошибка: Количество переданных значений не соответсвует количеству столбцов таблицы {table_name}')
-        return metadata
+        return []
     
-    validated_values = validation(metadata['columns'], values)
+    validated_values = validation(metadata[table_name]['columns'], values)
 
-    new_id = len(metadata['data'])
+    table = utils.load_table_data(table_name)
+
+    new_id = max((row['ID'] for row in table), default=0)
     full_values = [new_id] + validated_values
 
-    keys = list(metadata['columns'].keys())
+    keys = list(metadata[table_name]['columns'].keys())
     data = dict(zip(keys, full_values))
 
-    metadata['data'].append(data)
-    return metadata
+    table.append(data)
+    print(f'Запись с ID={data["ID"]} успешно добавлена в таблицу {table_name}')
+    return table
 
 
 def select(table_data: list, where_clause: dict = None) -> None:
@@ -177,12 +173,18 @@ def select(table_data: list, where_clause: dict = None) -> None:
     Если where_clause не задан, возвращает все данные.
     Если задан, фильтрует и возвращает только подходящие записи.
     """
-    table = make_table(table_data)
+    if not table_data:
+        print('Таблица пуста')
+        return 
 
     if where_clause is not None:
         column, cond = parse_clause(where_clause)
-        print(table.get_string(row_filter=lambda row: row[column] == int(cond)))
-        return
+        table_data = [
+                    row for row in table_data
+                    if row[column] == int(cond)
+                ]
+
+    table = make_table(table_data)
     
     print(table)
 
@@ -203,6 +205,8 @@ def update(table_data: list, set_clause: dict, where_clause: dict) -> list:
     for row in table_data:
         if row[where_column] == where_cond:
             row[set_column] = set_value
+            print(f'Запись с ID={row["ID"]} в таблице успешно обновлена')
+        
     return table_data
 
 
@@ -216,8 +220,26 @@ def delete(table_data: list, where_clause: dict) -> list:
     
     where_column, where_cond = parse_clause(where_clause)
 
-    for row in table_data[:]:
+    table = []
+
+    for row in table_data:
         if row[where_column] == where_cond:
-            table_data.remove(row)
-    return table_data
+            print(f'Запись с ID={row["ID"]} успешно удалена из таблицы')
+        else:
+            table.append(row)
+
+    return table
+
+
+def info(table_name: str, metadata: dict, table: list) -> None:
+    """
     
+    """
+    columns = [
+        f'{col}:{col_type}' 
+        for col, col_type in metadata[table_name]['columns'].items()
+        ]
+
+    print(f'Таблица: {table_name}')
+    print(f'Столбцы: {', '.join(columns)}')
+    print(f'Количество записей:{len(table)}')
