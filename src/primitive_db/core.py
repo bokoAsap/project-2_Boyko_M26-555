@@ -65,7 +65,9 @@ def create_table(metadata: dict, table_name: str, columns: list) -> dict:
         print('Ошибка: неподдерживаемый тип данных')
         return metadata
 
-    metadata[table_name] = columns
+    metadata[table_name] = {
+        'columns': dict(column.split(':', 1) for column in columns)
+    }
 
     cols_str = ', '.join(columns)
     print(f"Таблица {table_name} успешно создана со столбцами: {cols_str}")
