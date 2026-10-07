@@ -160,7 +160,7 @@ def insert(metadata: dict, table_name: str, values: list) -> list:
 
     table = utils.load_table_data(table_name)
 
-    new_id = max((row['ID'] for row in table), default=0)
+    new_id = max((row['ID'] for row in table), default=0) + 1
     full_values = [new_id] + validated_values
 
     keys = list(metadata[table_name]['columns'].keys())
@@ -238,7 +238,7 @@ def delete(table_data: list, where_clause: dict) -> list:
 def info(table_name: str, metadata: dict, table: list) -> None:
     """
     Выводит информацию о таблице
-    Названиеб столбцы и количество записей
+    Название, столбцы и количество записей
     """
     columns = [
         f'{col}:{col_type}' 
