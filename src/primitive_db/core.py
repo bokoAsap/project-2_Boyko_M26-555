@@ -1,4 +1,7 @@
 # основная логика работы с таблицами
+from prettytable import PrettyTable
+
+
 def id_add(columns: list) -> list:
     """
     Проверяет есть ли ID в списке столбцов
@@ -46,6 +49,49 @@ def types_check(columns: list) -> bool:
             return True
     return False
 
+
+def validation(columns: dict, values: list) -> list:
+    """
+    Вытаскивает тип данных столбцов и проверяет соответствуют ли передаваемые значения ему
+    """
+    keys = list(columns.keys())
+    for i in range(len(values)):
+        # if not value_type_check(values[i], columns[keys[i+1]]):
+        #     print(f'Значение {values[i]} не соответсвует типу {columns[keys[i+1]]}')
+        #     return False
+        if columns[keys[i+1]] == 'int':
+            values[i] = int(values[i])
+        elif columns[keys[i+1]] == 'bool':
+            values[i] = bool(values[i])
+        
+    return values
+
+
+# def value_type_check(value: object, type: str) -> bool:
+#     """
+#     Проверяет соотвествует ли значение типу данных
+#     """
+#     return isinstance(value, type)
+
+
+def make_table(table_data: list) -> PrettyTable:
+    """
+    Создает таблицу с помощью prettytable
+    """
+    table = PrettyTable()
+    table.field_names = list(table_data[0].keys())
+    table.add_rows([list(row.values()) for row in table_data])
+    return table
+
+
+def parse_clause(clause: dict) -> tuple:
+    """
+    Распаршивает условие
+    """
+    column = clause.keys()[0]
+    cond = clause.values()[0]
+    return column, cond
+
     
 def create_table(metadata: dict, table_name: str, columns: list) -> dict:
     """
@@ -65,8 +111,9 @@ def create_table(metadata: dict, table_name: str, columns: list) -> dict:
         print('Ошибка: неподдерживаемый тип данных')
         return metadata
 
-    metadata[table_name] = {
-        'columns': dict(column.split(':', 1) for column in columns)
+    metadata = {
+        'columns': dict(column.split(':', 1) for column in columns),
+        'data': []
     }
 
     cols_str = ', '.join(columns)
@@ -86,6 +133,7 @@ def drop_table(metadata: dict, table_name: str) -> dict:
         print(f'Ошибка: Таблица {table_name} не существует.')
     return metadata
 
+
 def list_tables(metadata: dict) -> None:
     """
     Выводит все таблицы в базе данных
@@ -94,3 +142,82 @@ def list_tables(metadata: dict) -> None:
         print('Ошибка: В базе данных пока нет таблиц')
     for tablename in metadata:
         print(f'- {tablename}\n')
+
+
+def insert(metadata: dict, table_name: str, values: list) -> dict:
+    """
+    Проверяет, существует ли таблица
+    Проверяет, что количество переданных значений соответствует количеству столбцов (минус ID)
+    Валидирует типы данных для каждого значения в соответствии со схемой в metadata
+    Генерирует новый ID (например, max(IDs) + 1 или len(data) + 1)
+    Добавляет новую запись (в виде словаря) в данные таблицы и возвращает их
+    """
+    if not name_check(metadata, table_name):
+        print(f'Ошибка: Таблица {table_name} не существует')
+        return metadata
+    
+    if len(values) != len(metadata['columns']) - 1:
+        print(f'Ошибка: Количество переданных значений не соответсвует количеству столбцов таблицы {table_name}')
+        return metadata
+    
+    validated_values = validation(metadata['columns'], values)
+
+    new_id = len(metadata['data'])
+    full_values = [new_id] + validated_values
+
+    keys = list(metadata['columns'].keys())
+    data = dict(zip(keys, full_values))
+
+    metadata['data'].append(data)
+    return metadata
+
+
+def select(table_data: list, where_clause: dict = None) -> None:
+    """
+    Если where_clause не задан, возвращает все данные.
+    Если задан, фильтрует и возвращает только подходящие записи.
+    """
+    table = make_table(table_data)
+
+    if where_clause is not None:
+        column, cond = parse_clause(where_clause)
+        print(table.get_string(row_filter=lambda row: row[column] == int(cond)))
+        return
+    
+    print(table)
+
+
+def update(table_data: list, set_clause: dict, where_clause: dict) -> list:
+    """
+    Находит записи по where_clause.
+    Обновляет в найденных записях поля согласно set_clause.
+    Возвращает измененные данные.
+    """
+    if set_clause is None or where_clause is None:
+        print(f'Ошибка: Неполное условие')
+        return table_data 
+
+    where_column, where_cond = parse_clause(where_clause)
+    set_column, set_value = parse_clause(set_clause)
+
+    for row in table_data:
+        if row[where_column] == where_cond:
+            row[set_column] = set_value
+    return table_data
+
+
+def delete(table_data: list, where_clause: dict) -> list:
+    """
+    
+    """
+    if where_clause is None:
+        print(f'Ошибка: Неполное условие')
+        return table_data 
+    
+    where_column, where_cond = parse_clause(where_clause)
+
+    for row in table_data[:]:
+        if row[where_column] == where_cond:
+            table_data.remove(row)
+    return table_data
+    
