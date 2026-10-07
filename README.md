@@ -120,3 +120,6 @@ info users
 Столбцы: ID:int, name:str, age:int
 Количество записей: 5
 ```
+
+### Asciinema-demo
+[![asciicast](https://asciinema.org/a/4wEeKPU8DIUdHJxC.svg)](https://asciinema.org/a/4wEeKPU8DIUdHJxC)
