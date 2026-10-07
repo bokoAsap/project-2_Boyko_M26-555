@@ -54,7 +54,8 @@ def types_check(columns: list) -> bool:
 
 def validation(columns: dict, values: list) -> list:
     """
-    Вытаскивает тип данных столбцов и проверяет соответствуют ли передаваемые значения ему
+    Вытаскивает тип данных столбцов и 
+    проверяет соответствуют ли передаваемые значения ему
     """
     punctuation = '",()'
     keys = list(columns.keys())
@@ -140,7 +141,8 @@ def list_tables(metadata: dict) -> None:
 def insert(metadata: dict, table_name: str, values: list) -> list:
     """
     Проверяет, существует ли таблица
-    Проверяет, что количество переданных значений соответствует количеству столбцов (минус ID)
+    Проверяет, что количество переданных значений соответствует количеству столбцов 
+    (минус ID)
     Валидирует типы данных для каждого значения в соответствии со схемой в metadata
     Генерирует новый ID (например, max(IDs) + 1 или len(data) + 1)
     Добавляет новую запись (в виде словаря) в данные таблицы и возвращает их
@@ -150,7 +152,8 @@ def insert(metadata: dict, table_name: str, values: list) -> list:
         return []
     
     if len(values) != len(metadata[table_name]['columns']) - 1:
-        print(f'Ошибка: Количество переданных значений не соответсвует количеству столбцов таблицы {table_name}')
+        print(f"""Ошибка: Количество переданных значений не соответсвует 
+              количеству столбцов таблицы {table_name}""")
         return []
     
     validated_values = validation(metadata[table_name]['columns'], values)
@@ -196,7 +199,7 @@ def update(table_data: list, set_clause: dict, where_clause: dict) -> list:
     Возвращает измененные данные.
     """
     if set_clause is None or where_clause is None:
-        print(f'Ошибка: Неполное условие')
+        print('Ошибка: Неполное условие')
         return table_data 
 
     where_column, where_cond = parse_clause(where_clause)
@@ -212,10 +215,11 @@ def update(table_data: list, set_clause: dict, where_clause: dict) -> list:
 
 def delete(table_data: list, where_clause: dict) -> list:
     """
-    
+    Находит записи по where_clause и удаляет их.
+    Возвращает измененные данные.
     """
     if where_clause is None:
-        print(f'Ошибка: Неполное условие')
+        print('Ошибка: Неполное условие')
         return table_data 
     
     where_column, where_cond = parse_clause(where_clause)
@@ -233,7 +237,8 @@ def delete(table_data: list, where_clause: dict) -> list:
 
 def info(table_name: str, metadata: dict, table: list) -> None:
     """
-    
+    Выводит информацию о таблице
+    Названиеб столбцы и количество записей
     """
     columns = [
         f'{col}:{col_type}' 
