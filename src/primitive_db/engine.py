@@ -1,6 +1,5 @@
 # Запуск, игровой цикл, парсинг команд
 import shlex
-import sys
 
 import prompt
 
@@ -17,7 +16,7 @@ def welcome():
     if command == 'help':
         welcome()
     elif command == 'exit':
-        sys.exit(0)
+        return
 
 
 def print_help():
@@ -57,5 +56,5 @@ def run():
             case "help":
                 print_help()
             case "exit":
-                sys.exit(0) 
+                return 
         utils.save_metadata('db_meta.json', current_metadata)    
