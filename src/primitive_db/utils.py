@@ -22,7 +22,7 @@ def save_metadata(filepath: str, data: dict) -> None:
         json.dump(data, file)
 
 
-def load_table_data(table_name: str) -> dict:
+def load_table_data(table_name: str) -> list:
     """
     Загружает данные по имени таблицы из файла
     """
@@ -31,10 +31,10 @@ def load_table_data(table_name: str) -> dict:
             data = json.load(file)
             return data
     except FileNotFoundError:
-        return {}
+        return []
 
 
-def save_table_data(table_name: str, data: dict) -> None:
+def save_table_data(table_name: str, data: list) -> None:
     """
     Сохраняет таблицу в файл
     """
