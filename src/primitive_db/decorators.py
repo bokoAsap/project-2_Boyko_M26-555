@@ -58,6 +58,6 @@ def log_time(func):
         result = func(*args, **kwargs)
         end_time = time.monotonic()
         delta = end_time - start_time
-        print(f'Функция {func.__name__} выполнилась за {delta} секунд')
+        print(f'Функция {func.__name__} выполнилась за {delta:.3f} секунд')
         return result
     return wrapper
