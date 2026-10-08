@@ -52,6 +52,9 @@ def confirm_action(action_name):
 
 
 def log_time(func):
+    """
+    Декоратор замеряет время выполнения функции и выводить его в консоль
+    """
     @functools.wraps(func)
     def wrapper(*args, **kwargs):
         start_time = time.monotonic()
