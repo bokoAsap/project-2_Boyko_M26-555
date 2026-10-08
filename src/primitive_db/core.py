@@ -88,7 +88,7 @@ def parse_clause(clause: dict) -> tuple:
     return tuple(clause.items())[0]
 
     
-@decorators.handle_db_errors 
+@decorators.handle_db_errors()
 def create_table(metadata: dict, table_name: str, columns: list) -> dict:
     """
     Принимает текущие метаданные, имя таблицы и список столбцов.
@@ -100,11 +100,9 @@ def create_table(metadata: dict, table_name: str, columns: list) -> dict:
     columns = id_add(columns)
 
     if name_check(metadata, table_name):
-        print(f'Ошибка: Таблица {table_name} уже существует')
         return metadata
     
     if types_check(columns):
-        print('Ошибка: неподдерживаемый тип данных')
         return metadata
 
     metadata[table_name] = {
@@ -116,8 +114,8 @@ def create_table(metadata: dict, table_name: str, columns: list) -> dict:
     return metadata
     
 
+@decorators.handle_db_errors()
 @decorators.confirm_action("удаление таблицы")
-@decorators.handle_db_errors 
 def drop_table(metadata: dict, table_name: str) -> dict:
     """
     Проверяет существование таблицы. Если таблицы нет, выводит ошибку
@@ -126,23 +124,22 @@ def drop_table(metadata: dict, table_name: str) -> dict:
     if name_check(metadata, table_name):
         print(f'Таблица {table_name} успешно удалена.')
         metadata.pop(table_name)
-    else:
-        print(f'Ошибка: Таблица {table_name} не существует.')
     return metadata
 
 
+@decorators.handle_db_errors()
 def list_tables(metadata: dict) -> None:
     """
     Выводит все таблицы в базе данных
     """
     if not metadata:
-        print('Ошибка: В базе данных пока нет таблиц')
+        print('В базе данных пока нет таблиц')
     for tablename in metadata:
         print(f'- {tablename}\n')
 
 
+@decorators.handle_db_errors()
 @decorators.log_time
-@decorators.handle_db_errors 
 def insert(metadata: dict, table_name: str, values: list) -> list:
     """
     Проверяет, существует ли таблица
@@ -153,12 +150,9 @@ def insert(metadata: dict, table_name: str, values: list) -> list:
     Добавляет новую запись (в виде словаря) в данные таблицы и возвращает их
     """
     if not name_check(metadata, table_name):
-        print(f'Ошибка: Таблица {table_name} не существует')
         return []
     
     if len(values) != len(metadata[table_name]['columns']) - 1:
-        print(f"""Ошибка: Количество переданных значений не соответсвует 
-              количеству столбцов таблицы {table_name}""")
         return []
     
     validated_values = validation(metadata[table_name]['columns'], values)
@@ -178,9 +172,8 @@ def insert(metadata: dict, table_name: str, values: list) -> list:
 
 select_cache = decorators.create_cacher()
 
-
+@decorators.handle_db_errors()
 @decorators.log_time
-@decorators.handle_db_errors 
 def select(table_data: list, where_clause: dict = None) -> None:
     """
     Если where_clause не задан, возвращает все данные.
@@ -208,7 +201,7 @@ def select(table_data: list, where_clause: dict = None) -> None:
     print(table)
 
 
-@decorators.handle_db_errors 
+@decorators.handle_db_errors() 
 def update(table_data: list, set_clause: dict, where_clause: dict) -> list:
     """
     Находит записи по where_clause.
@@ -216,7 +209,6 @@ def update(table_data: list, set_clause: dict, where_clause: dict) -> list:
     Возвращает измененные данные.
     """
     if set_clause is None or where_clause is None:
-        print('Ошибка: Неполное условие')
         return table_data 
 
     where_column, where_cond = parse_clause(where_clause)
@@ -230,15 +222,14 @@ def update(table_data: list, set_clause: dict, where_clause: dict) -> list:
     return table_data
 
 
+@decorators.handle_db_errors()
 @decorators.confirm_action("удаление записи")
-@decorators.handle_db_errors 
 def delete(table_data: list, where_clause: dict) -> list:
     """
     Находит записи по where_clause и удаляет их.
     Возвращает измененные данные.
     """
     if where_clause is None:
-        print('Ошибка: Неполное условие')
         return table_data 
     
     where_column, where_cond = parse_clause(where_clause)
@@ -254,6 +245,7 @@ def delete(table_data: list, where_clause: dict) -> list:
     return table
 
 
+@decorators.handle_db_errors()
 def info(table_name: str, metadata: dict, table: list) -> None:
     """
     Выводит информацию о таблице
