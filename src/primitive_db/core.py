@@ -115,6 +115,7 @@ def create_table(metadata: dict, table_name: str, columns: list) -> dict:
     print(f"Таблица {table_name} успешно создана со столбцами: {cols_str}")
     return metadata
     
+
 @decorators.confirm_action("удаление таблицы")
 @decorators.handle_db_errors 
 def drop_table(metadata: dict, table_name: str) -> dict:
@@ -175,6 +176,9 @@ def insert(metadata: dict, table_name: str, values: list) -> list:
     return table
 
 
+select_cache = decorators.create_cacher()
+
+
 @decorators.log_time
 @decorators.handle_db_errors 
 def select(table_data: list, where_clause: dict = None) -> None:
@@ -188,10 +192,16 @@ def select(table_data: list, where_clause: dict = None) -> None:
 
     if where_clause is not None:
         column, cond = parse_clause(where_clause)
-        table_data = [
+
+        key = (column, cond)
+
+        def get_result():
+            return [
                     row for row in table_data
                     if row[column] == int(cond)
                 ]
+
+        table_data = decorators.select_cache(key, get_result)
 
     table = make_table(table_data)
     
