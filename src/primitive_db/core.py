@@ -183,11 +183,13 @@ def select(table_data: list, where_clause: dict = None) -> None:
     Если задан, фильтрует и возвращает только подходящие записи.
     """
     if not table_data:
-        print('Таблица пуста')
-        return 
+        raise KeyError()
 
     if where_clause is not None:
         column, cond = parse_clause(where_clause)
+
+        if where_column not in table_data[0]:
+            raise KeyError(column)
 
         key = (column, cond)
 
@@ -198,6 +200,7 @@ def select(table_data: list, where_clause: dict = None) -> None:
                 ]
 
         table_data = decorators.select_cache(key, get_result)
+    
 
     table = make_table(table_data)
     
