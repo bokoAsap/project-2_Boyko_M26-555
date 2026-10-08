@@ -1,5 +1,6 @@
 # Декораторы, обработчики ошибок, подтверждение, логирование, кеширование
 import functools
+
 import prompt
 
 
@@ -36,9 +37,14 @@ def confirm_action(action_name):
     def decorator(func):
         @functools.wraps(func)
         def wrapper(*args, **kwargs):
-            user_input = prompt.string(f'Вы уверены, что хотите выполнить {action_name}? [y/n]: ')
+            user_input = prompt.string(
+                f'Вы уверены, что хотите выполнить {action_name}? '
+                f'[y/n]: '
+            )
             if user_input == 'y':
                 return func(*args, **kwargs)
             else:
                 print('Операция отменена')
                 return
+        return wrapper
+
