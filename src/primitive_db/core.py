@@ -153,7 +153,10 @@ def insert(metadata: dict, table_name: str, values: list) -> list:
         raise KeyError(table_name)
     
     if len(values) != len(metadata[table_name]['columns']) - 1:
-        return []
+        raise ValueError(
+            f'Ожидалось {len(metadata[table_name]["columns"]) - 1} значений, '
+            f'получено {len(values)}'
+        )
     
     validated_values = validation(metadata[table_name]['columns'], values)
 
@@ -194,7 +197,7 @@ def select(table_data: list, where_clause: dict = None) -> None:
                     if row[column] == int(cond)
                 ]
 
-        table_data = select_cache(key, get_result)
+        table_data = decorators.select_cache(key, get_result)
 
     table = make_table(table_data)
     
