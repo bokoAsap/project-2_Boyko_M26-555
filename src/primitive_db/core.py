@@ -220,6 +220,12 @@ def update(table_data: list, set_clause: dict, where_clause: dict) -> list:
     where_column, where_cond = parse_clause(where_clause)
     set_column, set_value = parse_clause(set_clause)
 
+    if where_column not in table_data[0]:
+        raise KeyError(where_column)
+
+    if set_column not in table_data[0]:
+        raise KeyError(set_column)
+
     for row in table_data:
         if row[where_column] == where_cond:
             row[set_column] = set_value
