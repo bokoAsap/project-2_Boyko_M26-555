@@ -1,6 +1,5 @@
 # Декораторы, обработчики ошибок, подтверждение, логирование, кеширование
 import functools
-
 import prompt
 
 
@@ -47,4 +46,4 @@ def confirm_action(action_name):
                 print('Операция отменена')
                 return
         return wrapper
-
+    return decorator
