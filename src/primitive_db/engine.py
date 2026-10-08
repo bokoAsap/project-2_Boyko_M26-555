@@ -70,7 +70,8 @@ def run():
             case "insert":
                 table = core.insert(current_metadata, args[2], args[4:])
 
-                utils.save_table_data(args[2], table)
+                if table is not None:
+                    utils.save_table_data(args[2], table)
             # select from users where age = 28
             case "select":
                 table = utils.load_table_data(args[2])
@@ -89,14 +90,17 @@ def run():
                 where_clause = parser.parse_str_clause(args[6:])
 
                 updated_table = core.update(table, set_clause, where_clause)
-                utils.save_table_data(args[1], updated_table)
+
+                if updated_table is not None:
+                    utils.save_table_data(args[1], updated_table)
             case "delete":
                 table = utils.load_table_data(args[2])
 
                 where_clause = parser.parse_str_clause(args[3:])
                 updated_table = core.delete(table, where_clause)
 
-                utils.save_table_data(args[2], updated_table)
+                if updated_table is not None:
+                    utils.save_table_data(args[2], updated_table)
             case "info":
                 table = utils.load_table_data(args[1])
                 core.info(args[1], current_metadata, table)
@@ -104,4 +108,7 @@ def run():
                 print_help()
             case "exit":
                 return 
-        utils.save_metadata('db_meta.json', current_metadata)    
+            case _:
+                print('Неправильная команда')
+        if current_metadata is not None:
+            utils.save_metadata('db_meta.json', current_metadata)    
