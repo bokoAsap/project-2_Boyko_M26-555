@@ -241,10 +241,10 @@ def delete(table_data: list, where_clause: dict) -> list:
     Находит записи по where_clause и удаляет их.
     Возвращает измененные данные.
     """
-    if where_clause is None:
-        return table_data 
-    
     where_column, where_cond = parse_clause(where_clause)
+    
+    if where_column not in table_data[0]:
+        raise KeyError(column)
 
     table = []
 
