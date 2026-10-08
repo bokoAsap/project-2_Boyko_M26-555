@@ -27,3 +27,18 @@ def handle_db_errors(default=None):
                 return default
         return wrapper
     return decorator
+
+
+def confirm_action(action_name):
+    """
+    Декоратор для подтверждения выполнения опасных функций
+    """
+    def decorator(func):
+        @functools.wraps(func)
+        def wrapper(*args, **kwargs):
+            user_input = prompt.string(f'Вы уверены, что хотите выполнить {action_name}? [y/n]: ')
+            if user_input == 'y':
+                return func(*args, **kwargs)
+            else:
+                print('Операция отменена')
+                return

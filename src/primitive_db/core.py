@@ -115,7 +115,7 @@ def create_table(metadata: dict, table_name: str, columns: list) -> dict:
     print(f"Таблица {table_name} успешно создана со столбцами: {cols_str}")
     return metadata
     
-
+@decorators.confirm_action("удаление таблицы")
 @decorators.handle_db_errors 
 def drop_table(metadata: dict, table_name: str) -> dict:
     """
@@ -217,6 +217,7 @@ def update(table_data: list, set_clause: dict, where_clause: dict) -> list:
     return table_data
 
 
+@decorators.confirm_action("удаление записи")
 @decorators.handle_db_errors 
 def delete(table_data: list, where_clause: dict) -> list:
     """
