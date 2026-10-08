@@ -14,7 +14,7 @@ def load_metadata(filepath: str) -> dict:
         data = json.load(file)
     return data
 
-@decorators.handle_db_errors
+@decorators.handle_db_errors()
 def save_metadata(filepath: str, data: dict) -> None:
     """
     Сохраняет переданные данные в JSON-файл
@@ -31,7 +31,7 @@ def load_table_data(table_name: str) -> list:
         data = json.load(file)
         return data
 
-@decorators.handle_db_errors
+@decorators.handle_db_errors()
 def save_table_data(table_name: str, data: list) -> None:
     """
     Сохраняет таблицу в файл
