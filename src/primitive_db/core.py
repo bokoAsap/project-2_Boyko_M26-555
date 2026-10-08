@@ -100,10 +100,10 @@ def create_table(metadata: dict, table_name: str, columns: list) -> dict:
     columns = id_add(columns)
 
     if name_check(metadata, table_name):
-        return metadata
+        raise KeyError(table_name)
     
     if types_check(columns):
-        return metadata
+        raise ValueError('Неподдерживаемый тип данных')
 
     metadata[table_name] = {
         'columns': dict(column.split(':', 1) for column in columns)
@@ -150,7 +150,7 @@ def insert(metadata: dict, table_name: str, values: list) -> list:
     Добавляет новую запись (в виде словаря) в данные таблицы и возвращает их
     """
     if not name_check(metadata, table_name):
-        return []
+        raise KeyError(table_name)
     
     if len(values) != len(metadata[table_name]['columns']) - 1:
         return []
@@ -194,7 +194,7 @@ def select(table_data: list, where_clause: dict = None) -> None:
                     if row[column] == int(cond)
                 ]
 
-        table_data = decorators.select_cache(key, get_result)
+        table_data = select_cache(key, get_result)
 
     table = make_table(table_data)
     
