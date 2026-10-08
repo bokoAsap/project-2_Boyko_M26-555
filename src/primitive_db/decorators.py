@@ -64,3 +64,20 @@ def log_time(func):
         print(f'Функция {func.__name__} выполнилась за {delta:.3f} секунд')
         return result
     return wrapper
+
+
+def create_cacher():
+    """
+    Функция с замыканием для кеширования
+    """
+    cache = {}
+
+    def cache_result(key, value_func):
+        if key not in cache:
+            cache[key] = value_func()
+        
+        return cache[key]
+
+    cache_result.cache_clear = lambda: cache.clear()
+
+    return cache_result
