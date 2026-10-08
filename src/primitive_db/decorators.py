@@ -1,5 +1,7 @@
 # Декораторы, обработчики ошибок, подтверждение, логирование, кеширование
 import functools
+import time
+
 import prompt
 
 
@@ -47,3 +49,15 @@ def confirm_action(action_name):
                 return
         return wrapper
     return decorator
+
+
+def log_time(func):
+    @functools.wraps(func)
+    def wrapper(*args, **kwargs):
+        start_time = time.monotonic()
+        result = func(*args, **kwargs)
+        end_time = time.monotonic()
+        delta = end_time - start_time
+        print(f'Функция {func.__name__} выполнилась за {delta} секунд')
+        return result
+    return wrapper

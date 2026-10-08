@@ -140,6 +140,7 @@ def list_tables(metadata: dict) -> None:
         print(f'- {tablename}\n')
 
 
+@decorators.log_time
 @decorators.handle_db_errors 
 def insert(metadata: dict, table_name: str, values: list) -> list:
     """
@@ -173,6 +174,8 @@ def insert(metadata: dict, table_name: str, values: list) -> list:
     print(f'Запись с ID={data["ID"]} успешно добавлена в таблицу {table_name}')
     return table
 
+
+@decorators.log_time
 @decorators.handle_db_errors 
 def select(table_data: list, where_clause: dict = None) -> None:
     """
