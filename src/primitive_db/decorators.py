@@ -1,17 +1,25 @@
 # Декораторы, обработчики ошибок, подтверждение, логирование, кеширование
 import functools
 import time
+from typing import Callable, Hashable, ParamSpec, TypeVar
 
 import prompt
 
+P = ParamSpec("P")
+R = TypeVar("R")
 
-def handle_db_errors(default=None):
+
+def handle_db_errors(
+    default: R | None = None
+    ) ->  Callable[[Callable[P, R]], Callable[P, R | None]]:
     """
     Декоратор для обработки ошибок 
     """
-    def decorator(func):
+    def decorator(
+        func: Callable[P, R]
+        ) -> Callable[P, R | None]:
         @functools.wraps(func)
-        def wrapper(*args, **kwargs):
+        def wrapper(*args: P.args, **kwargs: P.kwargs) -> R | None:
             try:
                 return func(*args, **kwargs)
             except FileNotFoundError:
@@ -31,13 +39,17 @@ def handle_db_errors(default=None):
     return decorator
 
 
-def confirm_action(action_name):
+def confirm_action(
+    action_name: str
+    ) -> Callable[[Callable[P, R]], Callable[P, R | None]]:
     """
     Декоратор для подтверждения выполнения опасных функций
     """
-    def decorator(func):
+    def decorator(
+        func: Callable[P, R]
+        ) ->  Callable[P, R | None]:
         @functools.wraps(func)
-        def wrapper(*args, **kwargs):
+        def wrapper(*args: P.args, **kwargs: P.kwargs) -> R | None:
             user_input = prompt.string(
                 f'Вы уверены, что хотите выполнить {action_name}? '
                 f'[y/n]: '
@@ -51,12 +63,14 @@ def confirm_action(action_name):
     return decorator
 
 
-def log_time(func):
+def log_time(
+    func: Callable[P, R]
+    ) -> Callable[P, R]:
     """
-    Декоратор замеряет время выполнения функции и выводить его в консоль
+    Декоратор замеряет время выполнения функции и выводит его в консоль
     """
     @functools.wraps(func)
-    def wrapper(*args, **kwargs):
+    def wrapper(*args: P.args, **kwargs: P.kwargs) -> R:
         start_time = time.monotonic()
         result = func(*args, **kwargs)
         end_time = time.monotonic()
@@ -66,13 +80,16 @@ def log_time(func):
     return wrapper
 
 
-def create_cacher():
+def create_cacher() -> Callable[[Hashable, Callable[[], R]], R]:
     """
     Функция с замыканием для кеширования
     """
     cache = {}
 
-    def cache_result(key, value_func):
+    def cache_result(
+        key: Hashable,
+        value_func: Callable[[], R]
+    ) -> R:
         if key not in cache:
             cache[key] = value_func()
         
