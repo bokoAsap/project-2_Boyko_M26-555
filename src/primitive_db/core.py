@@ -1,7 +1,7 @@
 # основная логика работы с таблицами
 from prettytable import PrettyTable
 
-from . import utils
+from . import decorators, utils
 
 
 def id_add(columns: list) -> list:
@@ -88,6 +88,7 @@ def parse_clause(clause: dict) -> tuple:
     return tuple(clause.items())[0]
 
     
+@decorators.handle_db_errors 
 def create_table(metadata: dict, table_name: str, columns: list) -> dict:
     """
     Принимает текущие метаданные, имя таблицы и список столбцов.
@@ -115,6 +116,7 @@ def create_table(metadata: dict, table_name: str, columns: list) -> dict:
     return metadata
     
 
+@decorators.handle_db_errors 
 def drop_table(metadata: dict, table_name: str) -> dict:
     """
     Проверяет существование таблицы. Если таблицы нет, выводит ошибку
@@ -138,6 +140,7 @@ def list_tables(metadata: dict) -> None:
         print(f'- {tablename}\n')
 
 
+@decorators.handle_db_errors 
 def insert(metadata: dict, table_name: str, values: list) -> list:
     """
     Проверяет, существует ли таблица
@@ -170,7 +173,7 @@ def insert(metadata: dict, table_name: str, values: list) -> list:
     print(f'Запись с ID={data["ID"]} успешно добавлена в таблицу {table_name}')
     return table
 
-
+@decorators.handle_db_errors 
 def select(table_data: list, where_clause: dict = None) -> None:
     """
     Если where_clause не задан, возвращает все данные.
@@ -192,6 +195,7 @@ def select(table_data: list, where_clause: dict = None) -> None:
     print(table)
 
 
+@decorators.handle_db_errors 
 def update(table_data: list, set_clause: dict, where_clause: dict) -> list:
     """
     Находит записи по where_clause.
@@ -213,6 +217,7 @@ def update(table_data: list, set_clause: dict, where_clause: dict) -> list:
     return table_data
 
 
+@decorators.handle_db_errors 
 def delete(table_data: list, where_clause: dict) -> list:
     """
     Находит записи по where_clause и удаляет их.
