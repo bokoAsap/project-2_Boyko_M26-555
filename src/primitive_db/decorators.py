@@ -41,7 +41,7 @@ def handle_db_errors(
 
 def confirm_action(
     action_name: str
-    ) -> Callable[[Callable[P, R]], Callable[P, R | None]]:
+    ) -> Callable[[Callable[P, R]], Callable[P, R]]:
     """
     Декоратор для подтверждения выполнения опасных функций
     """
@@ -49,7 +49,7 @@ def confirm_action(
         func: Callable[P, R]
         ) ->  Callable[P, R | None]:
         @functools.wraps(func)
-        def wrapper(*args: P.args, **kwargs: P.kwargs) -> R | None:
+        def wrapper(*args: P.args, **kwargs: P.kwargs) -> R:
             user_input = prompt.string(
                 f'Вы уверены, что хотите выполнить {action_name}? '
                 f'[y/n]: '
@@ -58,7 +58,7 @@ def confirm_action(
                 return func(*args, **kwargs)
             else:
                 print('Операция отменена')
-                return
+                return args[0]
         return wrapper
     return decorator
 
