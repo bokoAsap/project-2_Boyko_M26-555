@@ -3,7 +3,7 @@ import shlex
 
 import prompt
 
-from . import core, parser, utils
+from . import constants, core, parser, utils
 
 
 def welcome():
@@ -50,7 +50,7 @@ def print_help():
 def run():
     print_help()
     while True:
-        current_metadata = utils.load_metadata('db_meta.json')
+        current_metadata = utils.load_metadata(constants.META_FILE)
 
         user_input = prompt.string('Введите команду: ')
 

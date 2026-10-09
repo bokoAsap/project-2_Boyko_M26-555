@@ -1,7 +1,7 @@
 # основная логика работы с таблицами
 from prettytable import PrettyTable
 
-from . import decorators, utils
+from . import constants, decorators, utils
 
 
 def id_add(columns: list) -> list:
@@ -45,7 +45,7 @@ def types_check(columns: list) -> bool:
     False, если типы данных корректны
     """
     for column in columns:
-        if column.split(':')[-1] in ('int', 'str', 'bool'):
+        if column.split(':')[-1] in constants.VALID_TYPES:
             continue
         else:
             return True
