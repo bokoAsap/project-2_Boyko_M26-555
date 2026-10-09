@@ -1,7 +1,7 @@
 [project]
 name = "primitive-db"
 version = "0.1.0"
-description = "Add your description here"
+description = "A lightweight command-line database with table management, CRUD operations, caching, and decorators"
 readme = "README.md"
 authors = [
     { name = "Бойко Галя", email = "neverever3349@gmail.com" }
